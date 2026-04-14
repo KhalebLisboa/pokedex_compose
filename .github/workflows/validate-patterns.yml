@@ -1,0 +1,36 @@
+name: Validate Branch and Commit Patterns
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          echo "Branch: $BRANCH_NAME"
+
+          if [[ ! "$BRANCH_NAME" =~ ^[a-z0-9]+\/(feature|bugfix|hotfix|chore)-[a-z0-9-]+$ ]]; then
+            echo "❌ Nome da branch inválido!"
+            echo "Formato esperado: desenvolvedor/tipo-descricao"
+            echo "Ex: khaleb/feature-login"
+            exit 1
+          fi
+
+      - name: Validate commit messages
+        run: |
+          COMMITS=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:"%s")
+
+          for COMMIT in $COMMITS; do
+            echo "Checking commit: $COMMIT"
+
+            if [[ ! "$COMMIT" =~ ^(feat|fix|chore|refactor|docs|test):\ .+ ]]; then
+              echo "❌ Commit inválido: $COMMIT"
+              echo "Use padrão: feat: descrição"
+              exit 1
+            fi
+          done
