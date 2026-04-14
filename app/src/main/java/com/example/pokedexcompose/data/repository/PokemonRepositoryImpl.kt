@@ -15,7 +15,7 @@ class PokemonRepositoryImpl @Inject constructor(
 ) : PokemonRepository {
     override fun getPokemonList(): Flow<PagingData<Pokemon>> {
         return Pager(
-            config = PagingConfig(pageSize = 20),
+            config = PagingConfig(pageSize = 20 ),
             pagingSourceFactory = { PokemonPagingSource(apiService) }
         ).flow
     }
