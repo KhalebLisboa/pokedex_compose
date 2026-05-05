@@ -1,4 +1,4 @@
-package com.example.pokedexcompose.ui.pokemonlist
+package com.example.pokedexcompose.ui.mainlist
 
 import androidx.paging.PagingData
 import com.example.pokedexcompose.domain.model.Pokemon
@@ -12,9 +12,10 @@ class PokemonListContract {
 
     sealed class Intent {
         object LoadPokemons : Intent()
+        data class OnPokemonClicked(val id: Int) : Intent()
     }
 
     sealed class Effect {
-        data class ShowError(val message: String) : Effect()
+        data class NavigateToDetails(val id: Int) : Effect()
     }
 }
