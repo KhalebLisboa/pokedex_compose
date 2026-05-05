@@ -9,12 +9,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Validate branch name
         run: |
           BRANCH_NAME="${{ github.head_ref }}"
           echo "Branch: $BRANCH_NAME"
 
-          if [[ ! "$BRANCH_NAME" =~ ^[a-z0-9]+\/(feature|bugfix|hotfix|chore)-[a-z0-9-]+$ ]]; then
+          if [[ ! "$BRANCH_NAME" =~ ^[a-z0-9]+\/(feature|bugfix|hotfix|chore|config)-[a-z0-9-]+$ ]]; then
             echo "❌ Nome da branch inválido!"
             echo "Formato esperado: desenvolvedor/tipo-descricao"
             echo "Ex: khaleb/feature-login"
@@ -25,12 +30,12 @@ jobs:
         run: |
           COMMITS=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:"%s")
 
-          for COMMIT in $COMMITS; do
+          while IFS= read -r COMMIT; do
             echo "Checking commit: $COMMIT"
 
-            if [[ ! "$COMMIT" =~ ^(feat|fix|chore|refactor|docs|test):\ .+ ]]; then
+            if [[ ! "$COMMIT" =~ ^(feat|fix|chore|refactor|docs|test|add|config):\ .+ ]]; then
               echo "❌ Commit inválido: $COMMIT"
               echo "Use padrão: feat: descrição"
               exit 1
             fi
-          done
+          done <<< "$COMMITS"
