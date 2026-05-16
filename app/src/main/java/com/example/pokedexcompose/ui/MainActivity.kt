@@ -4,8 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.pokedexcompose.ui.pokemonlist.PokemonListScreen
+import com.example.pokedexcompose.navigation.MainNavigation
 import com.example.pokedexcompose.ui.theme.PokedexComposeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PokedexComposeTheme {
-                PokemonListScreen(viewModel = hiltViewModel())
+                MainNavigation()
             }
         }
     }

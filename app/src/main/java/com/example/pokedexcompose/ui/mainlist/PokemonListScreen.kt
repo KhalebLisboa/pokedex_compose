@@ -1,14 +1,17 @@
-package com.example.pokedexcompose.ui.pokemonlist
+package com.example.pokedexcompose.ui.mainlist
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
@@ -17,10 +20,21 @@ import com.example.pokedexcompose.domain.model.Pokemon
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PokemonListScreen(
-    viewModel: PokemonListViewModel
+    viewModel: PokemonListViewModel,
+    navController : NavController
 ) {
     val state by viewModel.state.collectAsState()
     val lazyPagingItems = state.pokemons.collectAsLazyPagingItems()
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when(effect){
+                is PokemonListContract.Effect.NavigateToDetails -> {
+                    navController.navigate("details/${effect.id}")
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -42,7 +56,9 @@ fun PokemonListScreen(
                 items(lazyPagingItems.itemCount) { index ->
                     val pokemon = lazyPagingItems[index]
                     if (pokemon != null) {
-                        PokemonItem(pokemon = pokemon)
+                        PokemonItem(pokemon = pokemon){
+                            viewModel.handleIntent(PokemonListContract.Intent.OnPokemonClicked(it))
+                        }
                     }
                 }
 
@@ -81,9 +97,9 @@ fun PokemonListScreen(
 }
 
 @Composable
-fun PokemonItem(pokemon: Pokemon) {
+fun PokemonItem(pokemon: Pokemon, onItemClicked: (Int) -> Unit = {}) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable { onItemClicked(pokemon.id) },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
